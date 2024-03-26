@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NFC ATTENDANCE</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <!-- Font Awesome Cdn Link -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+  <style>
+    /* Additional CSS can go here */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <ul>
+        <li><a href="#" class="logo">
+          <img src="images/nfc-icon-31.png">
+          <span class="nav-item">Dashboard</span>
+        </a></li>
+        <li><a href="#" id="dashboard-link">
+          <i class="fas fa-menorah"></i>
+          <span class="nav-item">Dashboard</span>
+        </a></li>
+        <!-- Remove the Message tab -->
+        <li style="display: none;"><a href="#">
+          <i class="fas fa-comment"></i>
+          <span class="nav-item">Message</span>
+        </a></li>
+        <li><a href="#" id="report-link">
+          <i class="fas fa-file-alt"></i>
+          <span class="nav-item">Report</span>
+        </a></li>
+        <li><a href="#" id="attendance-link">
+          <i class="fas fa-chart-bar"></i>
+          <span class="nav-item">View Attendance</span>
+        </a></li>
+        <li><a href="#" id="students-link">
+          <i class="fas fa-users"></i>
+          <span class="nav-item">Total Students</span>
+        </a></li>
+        <li><a href="#" id="settings-link">
+          <i class="fas fa-cog"></i>
+          <span class="nav-item">Setting</span>
+        </a></li>
+        <li><a href="#" class="logout" id="logout-link">
+          <i onclick="logout()" class="fas fa-sign-out-alt"></i>
+          <span onclick="logout()" class="nav-item">Log out</span>
+        </a></li>
+      </ul>
+    </nav>
+
+
+    <section class="main">
+      <div class="main-top">
+        <h1>Welcome to Dashboard</h1>
+        <i class="fas fa-user-cog"></i>
+      </div>
+
+      <div id="welcome" class="tabcontent">
+        <!-- Welcome content with button for taking attendance -->
+        <div class="welcome-message" style="display: block;">
+            <h3 style="color: #55c57a;">Welcome <%= username %>!</h3>
+            <p>Welcome to your dashboard! Explore the tabs to manage your tasks, view attendance, and update your profile.</p>
+        </div><br>
+        
+        <button onclick="takeAttendance()" class="secondary-button take-attendance-btn" style="display: block;">Take Attendance</button>
+      </div>
+
+      <!-- Attendance content -->
+<section class="attendance" style="display:none;">
+  <div class="attendance-list">
+      <h1>Attendance List of Students</h1>
+      <br>
+      <!-- Button to select date -->
+      <label for="attendanceDate">Select Date: </label>
+      <input type="date" id="attendanceDate">
+<!-- Add select input for subject -->
+<label for="attendanceSubject">Select Subject: </label>
+<select id="attendanceSubject">
+    <option value="">All Subjects</option>
+    <!-- Add options dynamically based on your database data -->
+    <% subjects.forEach(subject => { %>
+        <option value="<%= subject %>"><%= subject %></option>
+    <% }); %>
+</select>
+
+
+<button onclick="displayAttendanceByDateAndSubject()" class="secondary-button">Display Attendance</button>
+<a href="/generate-pdf-report" class="report-link report-pdf" target="_blank">Download PDF Report <i class="fas fa-file-pdf"></i></a>
+
+
+
+           
+          <table id="attendanceTable" class="table">
+            <thead>
+                    <tr>
+                      <th onclick="sortTable(0)" style="position: relative;">Date <span class="sort-icon fas"></span></th>
+
+                        <th onclick="sortTable(1)" style="position: relative;">Time <span class="sort-icon"></span></th>
+                        <th onclick="sortTable(2)" style="position: relative;">Student Name<span class="sort-icon"></span></th>
+                        <th onclick="sortTable(2)" style="position: relative;">Subject<span class="sort-icon"></span></th>
+                        <th onclick="sortTable(2)" style="position: relative;">Period<span class="sort-icon"></span></th>
+                      <!-- <th onclick="sortTable(3)" style="position: relative;">Attendance Status <span class="sort-icon"></span></th> -->
+                      <!--  <th onclick="sortTable(1)" style="position: relative;">Delete <span class="sort-icon"></span></th>-->
+                        <th onclick="sortTable(1)" style="position: relative;">Message <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% attendanceData.forEach(data => { %>
+                        <tr>
+                            <!-- Displaying date -->
+                            <td><%= data.time.toDateString() %></td>
+                            <!-- Displaying time -->
+                            <td><%= data.time.toLocaleTimeString() %></td>
+                            <td><%= data.studentName %></td>
+                            <td><%= data.subject %></td>
+                             <td><%= data.period %></td>
+                          <!--  <td><%= data.logData %></td> -->
+                            <!-- <td> -->
+                              <!-- Delete symbol with a button -->
+                              <!-- <button onclick="deleteAttendance('<%= data._id %>')" class="delete-btn"><i class="fas fa-trash-alt"></i></button> -->
+                              <td>
+                                <!-- Message icon for each student -->
+                               <button onclick="sendMessage('<%= data.studentName %>')" class="message-btn"><i class="fas fa-envelope"></i></button>
+                            </td>
+                            
+                          
+                          </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="report" style="display:none;">
+        <!-- Report content -->
+        <div class="report-list">
+          <h1 >Monthly Attendance Report Generation</h1>
+          <!-- Add your report content here -->
+          <p>This report provides an overview of the monthly attendance records for all students. Here, you can generate reports in Excel and PDF formats according to your needs..</p>
+          <div class="report-actions">
+            <a href="/generate-excel-report" class="report-link report-excel">Download Excel Report <i class="fas fa-file-excel"></i></a>
+            <a href="/generate-pdf-report" class="report-link report-pdf" target="_blank">Download PDF Report <i class="fas fa-file-pdf"></i></a>
+
+          </div>
+        </div>
+      </section>
+      
+
+      <section class="students" style="display:none;">
+        <!-- Students content -->
+        <div class="students-content">
+            <h1>Total Students</h1>
+            
+            <table id="attendanceTable" class="table">
+                <thead>
+                    <tr>
+                        <th>Serial Number</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% studentSerialNos.forEach(serialNo => { %>
+                        <tr>
+                            <td><%= serialNo.serialNumber %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+      <section class="setting" style="display:none;">
+        <!-- Setting content -->
+        <div class="setting-content">
+          <h1></h1>
+          <!-- Add your settings content here -->
+          <p>This is a sample settings page.</p>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <script>
+
+    
+   // JavaScript code to handle navigation link clicks
+  document.getElementById('dashboard-link').addEventListener('click', function(event) {
+    event.preventDefault();
+    // Update heading
+    document.querySelector('.main-top h1').innerText = 'Welcome to Dashboard';
+    // Hide all sections
+    hideAllSections();
+    // Show welcome section
+    document.getElementById('welcome').style.display = 'block';
+    document.querySelector('.welcome-message').style.display = 'block';
+    document.querySelector('.take-attendance-btn').style.display = 'block';
+  });
+
+  document.getElementById('report-link').addEventListener('click', function(event) {
+    event.preventDefault();
+    // Update heading
+    document.querySelector('.main-top h1').innerText = 'Report';
+    // Hide all sections
+    hideAllSections();
+    // Show report section
+    document.querySelector('.report').style.display = 'block';
+  });
+
+  document.getElementById('attendance-link').addEventListener('click', function(event) {
+    event.preventDefault();
+    // Update heading
+    document.querySelector('.main-top h1').innerText = 'Attendance';
+    // Hide all sections
+    hideAllSections();
+    // Show attendance section
+    document.querySelector('.attendance').style.display = 'block';
+  });
+
+  document.getElementById('students-link').addEventListener('click', function(event) {
+    event.preventDefault();
+    // Update heading
+    document.querySelector('.main-top h1').innerText = 'List of All Students';
+    // Hide all sections
+    hideAllSections();
+    // Show students section
+    document.querySelector('.students').style.display = 'block';
+  });
+
+  document.getElementById('settings-link').addEventListener('click', function(event) {
+    event.preventDefault();
+    // Update heading
+    document.querySelector('.main-top h1').innerText = 'Settings';
+    // Hide all sections
+    hideAllSections();
+    // Show settings section
+    document.querySelector('.setting').style.display = 'block';
+  });
+
+  function hideAllSections() {
+    // Hide all sections
+    document.getElementById('welcome').style.display = 'none';
+    document.querySelector('.welcome-message').style.display = 'none';
+    document.querySelector('.take-attendance-btn').style.display = 'none';
+    document.querySelector('.report').style.display = 'none';
+    document.querySelector('.attendance').style.display = 'none';
+    document.querySelector('.students').style.display = 'none';
+    document.querySelector('.setting').style.display = 'none';
+  }
+
+  
+   
+    
+  function takeAttendance() {
+    // Open the specified URL in a new tab
+    window.open("https://keshav-lemon.vercel.app/", "_blank");
+}
+
+
+    function displayAttendanceByDateAndSubject() {
+      var selectedDate = new Date(document.getElementById("attendanceDate").value);
+      var selectedSubject = document.getElementById("attendanceSubject").value;
+
+      var rows = document.getElementById("attendanceTable").rows;
+
+      for (var i = 1; i < rows.length; i++) {
+          var dateCell = new Date(rows[i].getElementsByTagName("td")[0].innerText);
+          var subjectCell = rows[i].getElementsByTagName("td")[3].innerText;
+
+          var dateMatches = dateCell.toDateString() === selectedDate.toDateString();
+          var subjectMatches = selectedSubject === "" || subjectCell === selectedSubject;
+
+          if (dateMatches && subjectMatches) {
+              rows[i].style.display = "";
+          } else {
+              rows[i].style.display = "none";
+          }
+      }
+    }
+
+
+     function logout() {
+      // Redirect to the login page or any other action you want to perform on logout
+      window.location.href = "/"; // Assuming your login page is served at the root URL
+    }
+
+    function deleteAttendance(attendanceId) {
+    // Perform AJAX request to delete attendance data
+    // Example:
+    // $.ajax({
+    //     url: '/deleteAttendance',
+    //     type: 'POST',
+    //     data: { id: attendanceId },
+    //     success: function(response) {
+    //         // Handle success
+    //     },
+    //     error: function(err) {
+    //         // Handle error
+    //     }
+    // });
+    console.log('Delete attendance for ID:', attendanceId);
+}
+
+function addAttendance(studentName) {
+    // Perform AJAX request to add attendance data
+    // Example:
+    // $.ajax({
+    //     url: '/addAttendance',
+    //     type: 'POST',
+    //     data: { studentName: studentName },
+    //     success: function(response) {
+    //         // Handle success
+    //     },
+    //     error: function(err) {
+    //         // Handle error
+    //     }
+    // });
+    console.log('Add attendance for student:', studentName);
+}
+
+function sendMessage(studentName) {
+    // Make an AJAX request to your server to send an SMS using Twilio
+    // You need to have an endpoint on your server to handle this request
+    
+    // Assuming you're using Fetch API for AJAX requests
+    fetch('/send-sms', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ studentName: studentName })
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('SMS sent successfully');
+        } else {
+            alert('Failed to send SMS');
+        }
+    })
+    .catch(error => {
+        console.error('Error sending SMS:', error);
+        alert('Failed to send SMS');
+    });
+}
+
+function sortTable(columnIndex) {
+    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    table = document.getElementById("attendanceTable");
+    switching = true;
+    // Set the sorting direction to ascending
+    dir = "asc"; 
+    while (switching) {
+        switching = false;
+        rows = table.rows;
+        for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("td")[columnIndex];
+            y = rows[i + 1].getElementsByTagName("td")[columnIndex];
+            if (dir == "asc") {
+                if (new Date(x.innerText) < new Date(y.innerText)) {
+                    shouldSwitch = true;
+                    break;
+                }
+            } else if (dir == "desc") {
+                if (new Date(x.innerText) > new Date(y.innerText)) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+        }
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+            switchcount ++;
+        } else {
+            if (switchcount == 0 && dir == "asc") {
+                dir = "desc";
+                switching = true;
+            }
+        }
+    }
+    // Toggle sort icon
+    var sortIcon = document.querySelector('.sort-icon');
+    sortIcon.classList.remove('fa-sort-asc', 'fa-sort-desc');
+    if (dir === "asc") {
+        sortIcon.classList.add('fa-sort-asc');
+    } else {
+        sortIcon.classList.add('fa-sort-desc');
+    }
+}
+
+
+
+
+
+  </script>
+</body>
+</html>
