@@ -19,7 +19,8 @@
 
         .container {
             display: flex;
-            width: 800px;
+            width: 90%;
+            max-width: 1000px; /* Adjusted maximum width for larger screens */
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
@@ -36,7 +37,7 @@
 
         .login-image img {
             max-width: 100%;
-            height: auto;
+            max-height: 100%; /* Ensure image doesn't overflow its container */
             border-radius: 10px;
         }
 
@@ -115,6 +116,19 @@
 
         a:hover {
             text-decoration: underline;
+        }
+
+        /* Media Query for smaller screens */
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column; /* Stack items vertically on smaller screens */
+            }
+            .login-image {
+                padding: 30px;
+            }
+            .login-form {
+                padding: 30px;
+            }
         }
     </style>
 </head>
